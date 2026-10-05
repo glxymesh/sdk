@@ -1,6 +1,7 @@
-# typescript-v1.2.3 publishes @glxymesh/sdk to npm and python-v1.2.3 publishes
-# glxymesh to PyPI, both by trusted publishing: no token is stored here. Go
-# needs no step: a v1.2.3 tag is the release, served by the Go module proxy.
+# typescript-v1.2.3 publishes @glxymesh/sdk to npm, with the NPM_TOKEN secret
+# (an automation token), and python-v1.2.3 publishes glxymesh to PyPI by
+# trusted publishing. Go needs no step: a v1.2.3 tag is the release, served by
+# the Go module proxy.
 name: Publish
 on:
   push:
@@ -20,6 +21,8 @@ jobs:
       - run: npm install -g npm@latest
       - run: npm version --no-git-tag-version "${GITHUB_REF_NAME#typescript-v}"
       - run: npm install && npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
   pypi:
     if: startsWith(github.ref_name, 'python-v')
     runs-on: ubuntu-latest
