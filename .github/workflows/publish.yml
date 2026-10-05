@@ -1,0 +1,35 @@
+# typescript-v1.2.3 publishes @glxymesh/sdk to npm and python-v1.2.3 publishes
+# glxymesh to PyPI, both by trusted publishing: no token is stored here. Go
+# needs no step: a v1.2.3 tag is the release, served by the Go module proxy.
+name: Publish
+on:
+  push:
+    tags: ["typescript-v*", "python-v*"]
+permissions: {contents: read}
+jobs:
+  npm:
+    if: startsWith(github.ref_name, 'typescript-v')
+    runs-on: ubuntu-latest
+    environment: npm
+    permissions: {contents: read, id-token: write}
+    defaults: {run: {working-directory: typescript}}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with: {node-version: 24, registry-url: "https://registry.npmjs.org"}
+      - run: npm install -g npm@latest
+      - run: npm version --no-git-tag-version "${GITHUB_REF_NAME#typescript-v}"
+      - run: npm install && npm publish --provenance --access public
+  pypi:
+    if: startsWith(github.ref_name, 'python-v')
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions: {contents: read, id-token: write}
+    defaults: {run: {working-directory: python}}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10
+      - run: sed -i "s/^version = .*/version = \"${GITHUB_REF_NAME#python-v}\"/" pyproject.toml
+      - run: uv build
+      - uses: pypa/gh-action-pypi-publish@release/v1
+        with: {packages-dir: python/dist}

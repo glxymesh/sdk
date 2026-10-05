@@ -1,0 +1,26 @@
+{
+  "name": "@glxymesh/sdk",
+  "version": "0.0.0",
+  "description": "Write Glxymesh function tools in TypeScript.",
+  "license": "Apache-2.0",
+  "homepage": "https://docs.glxymesh.com/reference/sdk/",
+  "repository": { "type": "git", "url": "git+https://github.com/glxymesh/sdk.git", "directory": "typescript" },
+  "type": "module",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./runtime": { "types": "./dist/runtime.d.ts", "import": "./dist/runtime.js" }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "typescript": "^7.0.2"
+  }
+}
