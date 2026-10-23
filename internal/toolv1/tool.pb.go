@@ -618,8 +618,12 @@ type ToolSpec struct {
 	// gateway's /connect, for databases and other protocols that aren't HTTPS.
 	// A host may be a vault host, {NAME}:5432.
 	NetworkConnect []string `protobuf:"bytes,16,rep,name=network_connect,json=networkConnect,proto3" json:"network_connect,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
+	// host → the SHA-256 fingerprint of the one HTTPS certificate the egress
+	// gateway accepts from it, for a self-hosted server no public authority
+	// vouches for. Uppercase hex, colon-separated, as spec.Fingerprint writes it.
+	NetworkTrust  map[string]string `protobuf:"bytes,17,rep,name=network_trust,json=networkTrust,proto3" json:"network_trust,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ToolSpec) Reset() {
@@ -760,6 +764,13 @@ func (x *ToolSpec) GetServed() []*ToolSpec {
 func (x *ToolSpec) GetNetworkConnect() []string {
 	if x != nil {
 		return x.NetworkConnect
+	}
+	return nil
+}
+
+func (x *ToolSpec) GetNetworkTrust() map[string]string {
+	if x != nil {
+		return x.NetworkTrust
 	}
 	return nil
 }
@@ -1909,7 +1920,7 @@ const file_tool_v1_tool_proto_rawDesc = "" +
 	"\x05entry\x18\x01 \x01(\tR\x05entry\x12\x14\n" +
 	"\x05build\x18\x02 \x01(\tR\x05build\x12\x12\n" +
 	"\x04port\x18\x03 \x01(\x05R\x04port\x12\x12\n" +
-	"\x04path\x18\x04 \x01(\tR\x04path\"\xda\x04\n" +
+	"\x04path\x18\x04 \x01(\tR\x04path\"\xe5\x05\n" +
 	"\bToolSpec\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12 \n" +
@@ -1928,7 +1939,11 @@ const file_tool_v1_tool_proto_rawDesc = "" +
 	"\x04http\x18\r \x01(\v2\x14.tool.v1.HttpRequestR\x04http\x12,\n" +
 	"\x06server\x18\x0e \x01(\v2\x14.tool.v1.ServerEntryR\x06server\x12)\n" +
 	"\x06served\x18\x0f \x03(\v2\x11.tool.v1.ToolSpecR\x06served\x12'\n" +
-	"\x0fnetwork_connect\x18\x10 \x03(\tR\x0enetworkConnect\"\x84\x01\n" +
+	"\x0fnetwork_connect\x18\x10 \x03(\tR\x0enetworkConnect\x12H\n" +
+	"\rnetwork_trust\x18\x11 \x03(\v2#.tool.v1.ToolSpec.NetworkTrustEntryR\fnetworkTrust\x1a?\n" +
+	"\x11NetworkTrustEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x84\x01\n" +
 	"\x0eServerIdentity\x12\x14\n" +
 	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
 	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x1f\n" +
@@ -2066,7 +2081,7 @@ func file_tool_v1_tool_proto_rawDescGZIP() []byte {
 }
 
 var file_tool_v1_tool_proto_enumTypes = make([]protoimpl.EnumInfo, 6)
-var file_tool_v1_tool_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_tool_v1_tool_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
 var file_tool_v1_tool_proto_goTypes = []any{
 	(Kind)(0),                     // 0: tool.v1.Kind
 	(Lang)(0),                     // 1: tool.v1.Lang
@@ -2095,7 +2110,8 @@ var file_tool_v1_tool_proto_goTypes = []any{
 	(*FetchResponse)(nil),         // 24: tool.v1.FetchResponse
 	nil,                           // 25: tool.v1.HttpRequest.QueryEntry
 	nil,                           // 26: tool.v1.HttpRequest.HeadersEntry
-	(*timestamppb.Timestamp)(nil), // 27: google.protobuf.Timestamp
+	nil,                           // 27: tool.v1.ToolSpec.NetworkTrustEntry
+	(*timestamppb.Timestamp)(nil), // 28: google.protobuf.Timestamp
 }
 var file_tool_v1_tool_proto_depIdxs = []int32{
 	3,  // 0: tool.v1.SecretBinding.mode:type_name -> tool.v1.SecretMode
@@ -2107,31 +2123,32 @@ var file_tool_v1_tool_proto_depIdxs = []int32{
 	7,  // 6: tool.v1.ToolSpec.http:type_name -> tool.v1.HttpRequest
 	8,  // 7: tool.v1.ToolSpec.server:type_name -> tool.v1.ServerEntry
 	9,  // 8: tool.v1.ToolSpec.served:type_name -> tool.v1.ToolSpec
-	1,  // 9: tool.v1.Manifest.lang:type_name -> tool.v1.Lang
-	10, // 10: tool.v1.Manifest.server:type_name -> tool.v1.ServerIdentity
-	9,  // 11: tool.v1.Manifest.tools:type_name -> tool.v1.ToolSpec
-	27, // 12: tool.v1.Manifest.built_at:type_name -> google.protobuf.Timestamp
-	12, // 13: tool.v1.InvokeEvent.caller:type_name -> tool.v1.Caller
-	27, // 14: tool.v1.InvokeEvent.deadline:type_name -> google.protobuf.Timestamp
-	27, // 15: tool.v1.LogLine.at:type_name -> google.protobuf.Timestamp
-	4,  // 16: tool.v1.InvokeResult.error_kind:type_name -> tool.v1.ErrorKind
-	14, // 17: tool.v1.InvokeResult.logs:type_name -> tool.v1.LogLine
-	27, // 18: tool.v1.EgressGrant.expires_at:type_name -> google.protobuf.Timestamp
-	27, // 19: tool.v1.EgressRequest.at:type_name -> google.protobuf.Timestamp
-	5,  // 20: tool.v1.EgressRequest.decision:type_name -> tool.v1.EgressDecision
-	21, // 21: tool.v1.EgressRequest.headers:type_name -> tool.v1.Header
-	21, // 22: tool.v1.EgressRequest.answer_headers:type_name -> tool.v1.Header
-	18, // 23: tool.v1.EgressTrace.requests:type_name -> tool.v1.EgressRequest
-	15, // 24: tool.v1.ExecResult.result:type_name -> tool.v1.InvokeResult
-	18, // 25: tool.v1.ExecResult.requests:type_name -> tool.v1.EgressRequest
-	21, // 26: tool.v1.FetchRequest.headers:type_name -> tool.v1.Header
-	21, // 27: tool.v1.FetchResponse.headers:type_name -> tool.v1.Header
-	5,  // 28: tool.v1.FetchResponse.decision:type_name -> tool.v1.EgressDecision
-	29, // [29:29] is the sub-list for method output_type
-	29, // [29:29] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	27, // 9: tool.v1.ToolSpec.network_trust:type_name -> tool.v1.ToolSpec.NetworkTrustEntry
+	1,  // 10: tool.v1.Manifest.lang:type_name -> tool.v1.Lang
+	10, // 11: tool.v1.Manifest.server:type_name -> tool.v1.ServerIdentity
+	9,  // 12: tool.v1.Manifest.tools:type_name -> tool.v1.ToolSpec
+	28, // 13: tool.v1.Manifest.built_at:type_name -> google.protobuf.Timestamp
+	12, // 14: tool.v1.InvokeEvent.caller:type_name -> tool.v1.Caller
+	28, // 15: tool.v1.InvokeEvent.deadline:type_name -> google.protobuf.Timestamp
+	28, // 16: tool.v1.LogLine.at:type_name -> google.protobuf.Timestamp
+	4,  // 17: tool.v1.InvokeResult.error_kind:type_name -> tool.v1.ErrorKind
+	14, // 18: tool.v1.InvokeResult.logs:type_name -> tool.v1.LogLine
+	28, // 19: tool.v1.EgressGrant.expires_at:type_name -> google.protobuf.Timestamp
+	28, // 20: tool.v1.EgressRequest.at:type_name -> google.protobuf.Timestamp
+	5,  // 21: tool.v1.EgressRequest.decision:type_name -> tool.v1.EgressDecision
+	21, // 22: tool.v1.EgressRequest.headers:type_name -> tool.v1.Header
+	21, // 23: tool.v1.EgressRequest.answer_headers:type_name -> tool.v1.Header
+	18, // 24: tool.v1.EgressTrace.requests:type_name -> tool.v1.EgressRequest
+	15, // 25: tool.v1.ExecResult.result:type_name -> tool.v1.InvokeResult
+	18, // 26: tool.v1.ExecResult.requests:type_name -> tool.v1.EgressRequest
+	21, // 27: tool.v1.FetchRequest.headers:type_name -> tool.v1.Header
+	21, // 28: tool.v1.FetchResponse.headers:type_name -> tool.v1.Header
+	5,  // 29: tool.v1.FetchResponse.decision:type_name -> tool.v1.EgressDecision
+	30, // [30:30] is the sub-list for method output_type
+	30, // [30:30] is the sub-list for method input_type
+	30, // [30:30] is the sub-list for extension type_name
+	30, // [30:30] is the sub-list for extension extendee
+	0,  // [0:30] is the sub-list for field type_name
 }
 
 func init() { file_tool_v1_tool_proto_init() }
@@ -2145,7 +2162,7 @@ func file_tool_v1_tool_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_tool_v1_tool_proto_rawDesc), len(file_tool_v1_tool_proto_rawDesc)),
 			NumEnums:      6,
-			NumMessages:   21,
+			NumMessages:   22,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
